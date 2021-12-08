@@ -1,11 +1,8 @@
 import statistics
+import math
 
 def totalfuel(pos, crabs):
-	fuel = 0
-	for crab in crabs:
-		fuel += abs(pos - crab)
-
-	return fuel
+	return sum(abs(pos - crab) for crab in crabs)
 
 # input is one line of comma-separated numbers,
 # denoting each crab's horizontal position
@@ -38,8 +35,9 @@ def part2fuel(pos, crabs):
 		fuel += (distance**2 + distance)/2
 	return fuel
 
-mincrab = min(crabs)
-maxcrab = max(crabs)
+# the mean is close to the best answer
+mincrab = math.floor(mean) - 1
+maxcrab = math.ceil(mean) + 1
 
 # ??? exhaustive search
 # there's not that many positions
