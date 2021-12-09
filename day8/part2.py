@@ -7,7 +7,7 @@ sumofvals = 0
 for line in puzzinput:
     splitline = line.split(" | ")
     tensignals = splitline[0].split()
-    fourdigits = list(map(set, splitline[1].split()))
+    fourdigits = splitline[1].split()
     # print("fourdigits ", fourdigits)
 
     # Note: letter ordering isn't guaranteed to be the same
@@ -32,18 +32,8 @@ for line in puzzinput:
 
     # print("1478 %s %s %s %s" % (numbers[1], numbers[4], numbers[7], numbers[8]))
 
-    tensignals.remove(numbers[1])
-    tensignals.remove(numbers[4])
-    tensignals.remove(numbers[7])
-    tensignals.remove(numbers[8])
-
-    # the mapping of baseline letters to this line's letters
-    letters = {}
-    # a is the difference between 1 and 7
-    # this is how you unpack single-element sets apparently
-    (letters['a'],) = set(numbers[7]).difference(set(numbers[1]))
-
-    # 9 | 1478
+    # 9 0 6 | 1478
+    set1 = set(numbers[1])
     set4 = set(numbers[4])
     for signal in tensignals:
         numsegments = len(signal)
@@ -52,12 +42,15 @@ for line in puzzinput:
             # 9 is the only 6-segment that containts a superset of 4
             if signalset > set4:
                 numbers[9] = signal
-                 # g is whichever one isn't a
-                (letters['g'],) = signalset.difference(set4).difference({letters['a']})
-                tensignals.remove(signal)
-                break
-    # 3 | 14789
-    set1 = set(numbers[1])
+            # 0 is a superset of 1 but not 4
+            elif signalset > set1:
+                numbers[0] = signal
+            # otherwise, it's 6
+            else:
+                numbers[6] = signal
+
+    # 3 5 2 | 0146789
+    set6 = set(numbers[6])
     for signal in tensignals:
         numsegments = len(signal)
         # 2 = acdeg
@@ -65,39 +58,15 @@ for line in puzzinput:
         # 5 = abdfg
         if numsegments == 5:
             signalset = set(signal)
-            # 3 is the only one that contains cf, we know that 1 is cf
+            # 3 is a superset of 1
             if signalset > set1:
                 numbers[3] = signal
-                # d is the one that isn't a or g
-                ag = {letters['a'], letters['g']}
-                adg = signalset.difference(set1)
-                (letters['d'], ) = adg.difference(ag)
-                tensignals.remove(signal)
-                break
-    
-    # 06 | 134789
-    for signal in tensignals:
-        numsegments = len(signal)
-        # 0 = abcefg
-        # 6 = abdefg
-        # 6 has d but 0 doesn't. 9 was previously removed
-        if numsegments == 6:
-            if (letters['d'] in signal):
-                numbers[6] = signal
+            # 5 is a subset of 6
+            elif signalset < set6:
+                numbers[5] = signal
+            # otherwise it's 2
             else:
-                numbers[0] = signal
-    
-    tensignals.remove(numbers[0])
-    tensignals.remove(numbers[6])
-
-    # 25 | 01346789
-    set6 = set(numbers[6])
-    for signal in tensignals:
-        # 5 is a subset of 6
-        if set(signal) < set6:
-            numbers[5] = signal
-        else:
-            numbers[2] = signal
+                numbers[2] = signal
 
     # the four digits
     multiplier = 1000
