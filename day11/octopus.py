@@ -7,16 +7,23 @@ octopi = []
 for line in puzzinput:
 	octopi.append(list(map(int, (c for c in line if c.isdigit()))))
 
+numoctopi = len(octopi) * len(octopi[0])
+
 #print("Initial state")
 #print(octopi)
 
 # numsteps = 2
 # numsteps = 10
-numsteps = 100
+# numsteps = 100
+numsteps = 2000
 
-numflashes = 0
+# Part 1: total flashes over all steps
+totalflashes = 0
+# Part 2: when do all octopi flash simultaneously
+allflash = -1
 for step in range(numsteps):
     checkflash = False # Do we need to propagate flashes??
+    flashes = 0 # flashes this step
 
     # First, the energy level of each octopus increases by 1
     for i, row in enumerate(octopi):
@@ -37,7 +44,7 @@ for step in range(numsteps):
                 if octopi[i][j] > 9:
                     # flashed octopi get set to 0
                     octopi[i][j] = 0
-                    numflashes += 1
+                    flashes += 1
                     # increment neighbors
                     minrow = max(0, i-1)
                     maxrow = min(i+1, len(octopi)-1)
@@ -56,6 +63,12 @@ for step in range(numsteps):
                                 checkflash = True # need to propagate
 
     #print("After step ", step)
-    print(octopi)
+    # print(octopi)
+    totalflashes += flashes
+    # find the first time all octopi flash
+    if flashes == numoctopi:
+        allflash = step + 1 # the step nums are 1-indexed
+        break
     
-print("numflashes ", numflashes)
+print("totalflashes ", totalflashes)
+print("synchronized flashes", allflash)
