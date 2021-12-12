@@ -34,17 +34,3 @@ def dfs(connections, curcave, curpath):
 dfs(connections, "start", [])
 
 print("num paths", len(paths))
-# print(paths)
-visitedsmall = 0
-for path in paths:
-    # start and end are lowercase
-    for cave in path:
-        if cave.islower() and not cave == "start" and not cave == "end":
-            visitedsmall += 1
-            #print("has small cave", path)
-            break
-    else:
-        print("no small caves ", path)
-
-## why was visitedsmall 1 under the right answer?
-print("visited small", visitedsmall)
