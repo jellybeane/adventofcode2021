@@ -20,44 +20,45 @@ print("connections ", connections)
 
 
 # Part 1: find all the paths that visit small caves at most once
-def dfs(connections, curcave, curpath, paths):
-    curpath.append(curcave)
-
-    if curcave == "end":
-            print(curpath)
-            paths.append(curpath)
-            return
-
-    for nextcave in connections[curcave]:
-        if not nextcave in curpath or nextcave.isupper():
-            dfs(connections, nextcave, copy.deepcopy(curpath), paths)
-
-# Part 2: may visit one small cave twice
-def part2(connections, curcave, curpath, paths):
+def dfs(connections, curcave, curpath):
     curpath.append(curcave)
 
     if curcave == "end":
             #print(curpath)
-            paths.append(curpath)
-            return
+            return 1
 
+    numpaths = 0
+    for nextcave in connections[curcave]:
+        if not nextcave in curpath or nextcave.isupper():
+            numpaths += dfs(connections, nextcave, copy.deepcopy(curpath))
+    return numpaths
+
+# Part 2: may visit one small cave twice
+def part2(connections, curcave, curpath):
+    curpath.append(curcave)
+
+    if curcave == "end":
+            #print(curpath)
+            return 1
+    
+    numpaths = 0
     for nextcave in connections[curcave]:
         # always add new or uppercase caves
         if not nextcave in curpath or nextcave.isupper():
-            part2(connections, nextcave, copy.deepcopy(curpath), paths)
+            numpaths += part2(connections, nextcave, copy.deepcopy(curpath))
         # re-add a lowercase only if there are no double-visit lowercases
         elif not nextcave == "start":
             counts = Counter(curpath)
             for cave, count in counts.items():
+                # if we've already visited a lowercase cave twice, break
                 if cave.islower() and count == 2:
                     break
-            else:
-                part2(connections, nextcave, copy.deepcopy(curpath), paths)
+            else: # didn't break, so no lowercase cave has been visited twice
+                numpaths += part2(connections, nextcave, copy.deepcopy(curpath))
+    return numpaths
 
-# paths = []
-# dfs(connections, "start", [])
-# print("num paths", len(paths))
+numpaths = dfs(connections, "start", [])
+print("part 1 paths", numpaths)
 
-paths = []
-part2(connections, "start", [], paths)
-print("num paths", len(paths))
+numpaths = part2(connections, "start", [])
+print("part 2 paths", numpaths)
