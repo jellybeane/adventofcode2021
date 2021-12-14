@@ -15,3 +15,4 @@ Day | Theme | Notes
 11  |Dumbo Octopus|2D arrays, enumerate
 12  |Passage Pathing|depth first search, Counter
 13  |Transparent Origami| 2D arrays, zip
+14  |Polymerization|bit shift, not brute forcing
