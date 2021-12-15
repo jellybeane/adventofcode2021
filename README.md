@@ -16,3 +16,4 @@ Day | Theme | Notes
 12  |Passage Pathing|depth first search, Counter
 13  |Transparent Origami| 2D arrays, zip
 14  |Polymerization|bit shift, not brute forcing
+15  |Chiton|A*
