@@ -1,31 +1,63 @@
 import math
+import operator
 
+#example = 'C200B40A82' # finds the sum of 1 and 2, resulting in the value 3.
+#example = '04005AC33890' # finds the product of 6 and 9, resulting in the value 54.
+#example = '880086C3E88112' # finds the minimum of 7, 8, and 9, resulting in the value 7.
+#example = 'CE00C43D881120' # finds the maximum of 7, 8, and 9, resulting in the value 9.
+#example = 'D8005AC2A8F0' # produces 1, because 5 is less than 15.
+#example = 'F600BC2D8F' # produces 0, because 5 is not greater than 15.
+#example = '9C005AC2F8F0' # produces 0, because 5 is not equal to 15.
+# example = '9C0141080250320F1802104A08' # produces 1, because 1 + 3 = 2 * 2.
 
-#example = 'D2FE28' # literal
-#example = '38006F45291200'
-#example = 'EE00D40C823060' # operator
-#example = '8A004A801A8002F478'
-#example = '620080001611562C8802118E34'
-#example = 'C0015000016115A2E0802F182340'
-example = 'A0016C880162017C3686B18A3D4780'
-intval = int(example, 16)
-bstr = format(intval, '0>'+str(4*len(example))+'b')
+# intval = int(example, 16)
+# bstr = format(intval, '0>'+str(4*len(example))+'b')
 
-# puzzinput = open("input.txt")
-# puzzstr = puzzinput.readline().strip()
-# intval = int(puzzstr, 16)
-# bstr = format(intval, '0>'+str(4*len(puzzstr))+'b')
+puzzinput = open("input.txt")
+puzzstr = puzzinput.readline().strip()
+intval = int(puzzstr, 16)
+bstr = format(intval, '0>'+str(4*len(puzzstr))+'b')
+
+def product(vals):
+	p = 1
+	for val in vals:
+		p *= val
+	return p
+
+def greater(vals):
+	return int(vals[0] > vals[1])
+
+def lesser(vals):
+	return int(vals[0] < vals[1])
+
+def equal(vals):
+	return int(vals[0] == vals[1])
+
+operations = {
+	0 : sum,
+	1 : product, # python doesn't have builtin product
+	2 : min,
+	3 : max,
+	5 : greater,
+	6 : lesser,
+	7 : equal
+}
 
 class Literal:
 	def __init__(self, version,num):
+		#print("Literal v%s : %s" % (version, num))
 		self.version = version
 		self.num = num
 
 	def versionsum(self):
 		return self.version
 
+	def getval(self):
+		return self.num
+
 class Operator:
 	def __init__(self, version, typeid, packets):
+		#print("Operator v%s, type %s, packets %s" % (version, typeid, len(packets)))
 		self.version = version
 		self.typeid = typeid
 		self.packets = packets
@@ -36,9 +68,12 @@ class Operator:
 			vsum += packet.versionsum()
 		return vsum
 
-# Part 1: add up all the version numbers
+	def getval(self):
+		op = operations[self.typeid]
+		return op([packet.getval() for packet in self.packets])
+
 def processpacket(bstr):
-	print('processpacket', bstr)
+	#print('processpacket', bstr)
 
 	# bstr may have trailing zeros, but there should be fewer than 11 of them
 	if len(bstr) < 11:
@@ -52,79 +87,66 @@ def processpacket(bstr):
 	# Every packet begins with a standard header: 
 	# the first three bits encode the packet version,
 	# and the next three bits encode the packet type ID.
-	version = int(bstr[:3], 2)
-	typeid = int(bstr[3:6], 2)
-	print("version", version)
-	print("typeid", typeid)
+	index = 3
+	version = int(bstr[:index], 2)
+	typeid = int(bstr[index:index+3], 2)
+	index += 3
+	#print("version", version)
+	#print("typeid", typeid)
 
 	# Type IDs
 	# 4: literal
 	# Other: operator
-
 	if (typeid == 4):
 		literalstr = ''
 		keepreading = True
-		groupstart = 6
 		while keepreading:
 			## last group, end of packet
-			if int(bstr[groupstart]) == 0:
+			if int(bstr[index]) == 0:
 				keepreading = False
-			literalstr += bstr[groupstart+1:groupstart+5]
-			groupstart = groupstart+5
+			literalstr += bstr[index+1:index+5]
+			index += 5
 		literal = int(literalstr, 2)
-		print("literalstr", literalstr)
-		print("literal", literal)
 
-		# print("packetend", packetend)
 		thispacket = Literal(version,literal)
-		return((thispacket, groupstart))
+		return((thispacket, index))
 
 	else:
-		lengthtype = int(bstr[6])
+		lengthtype = int(bstr[index])
+		index += 1
 		# If the length type ID is 0, then the next 15 bits
 		# are a number that represents the total length in bits of the sub-packets contained by this packet.
 		if lengthtype == 0:
-			# print("lengthtype 0")
-			subpackets = []
 			length = 15
-			totalsubpacketlen = int(bstr[7:22],2)
-			print("subpacket len str", bstr[7:22])
-			print("totalsubpacketlen+22", totalsubpacketlen+22)
-			# print("totalsubpacketlen", totalsubpacketlen)
-			packetstart = 22
+			totalsubpacketlen = int(bstr[index:index+length],2)
+			index += length
 
-			while packetstart < totalsubpacketlen:
-				print("packetstart before", packetstart)
-				print("len(bstr)", len(bstr))
-				subpacket, packetlen = processpacket(bstr[packetstart:])
-				print("packetstart after", packetstart)
-				packetstart += packetlen
+			subpackets = []
+			while index < totalsubpacketlen+22:
+				subpacket, packetlen = processpacket(bstr[index:])
+				index += packetlen
 				subpackets.append(subpacket)
-			# print("version", version)
-			thispacket= Operator(version,typeid,subpackets)
-			return ((thispacket, packetstart))
+			thispacket = Operator(version,typeid,subpackets)
+			return ((thispacket, index))
 				
 		# If the length type ID is 1, then the next 11 bits
 		# are a number that represents the number of sub-packets immediately contained by this packet.
 		else:
-			# print("lengthtype 1")
-			subpackets = []
 			length = 11
-			numpackets = int(bstr[7:18],2)
-			print("numpacket str", bstr[7:18])
-			print("numpackets", numpackets)
-			# print("numpackets", numpackets)
-			packetstart = 18
+			numpackets = int(bstr[index:index+length],2)
+			index += length
+
+			subpackets = []
 			for i in range(0, numpackets):
-				print("packetstart before", packetstart)
-				subpacket, packetlen = processpacket(bstr[packetstart:])
-				print("packetstart after", packetstart)
-				packetstart += packetlen
+				subpacket, packetlen = processpacket(bstr[index:])
+				index += packetlen
 				subpackets.append(subpacket)
-			# print("version", version)
 			thispacket= Operator(version,typeid,subpackets)
-			return ((thispacket, packetstart))
+			return ((thispacket, index))
 
-packet, finalpacketlen = processpacket(bstr)
+finalpacket, finalpacketlen = processpacket(bstr)
 
-print("versionsum", packet.versionsum())
+# Part 1: add up all the version numbers
+print("versionsum", finalpacket.versionsum())
+# Part 2: evaluate the packet
+print("packetval", finalpacket.getval())
