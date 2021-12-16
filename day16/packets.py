@@ -7,14 +7,34 @@ import math
 #example = '8A004A801A8002F478'
 #example = '620080001611562C8802118E34'
 #example = 'C0015000016115A2E0802F182340'
-# example = 'A0016C880162017C3686B18A3D4780'
-# intval = int(example, 16)
-# bstr = format(intval, '0>'+str(4*len(example))+'b')
+example = 'A0016C880162017C3686B18A3D4780'
+intval = int(example, 16)
+bstr = format(intval, '0>'+str(4*len(example))+'b')
 
-puzzinput = open("input.txt")
-puzzstr = puzzinput.readline().strip()
-intval = int(puzzstr, 16)
-bstr = format(intval, '0>'+str(4*len(puzzstr))+'b')
+# puzzinput = open("input.txt")
+# puzzstr = puzzinput.readline().strip()
+# intval = int(puzzstr, 16)
+# bstr = format(intval, '0>'+str(4*len(puzzstr))+'b')
+
+class Literal:
+	def __init__(self, version,num):
+		self.version = version
+		self.num = num
+
+	def versionsum(self):
+		return self.version
+
+class Operator:
+	def __init__(self, version, typeid, packets):
+		self.version = version
+		self.typeid = typeid
+		self.packets = packets
+
+	def versionsum(self):
+		vsum = self.version
+		for packet in self.packets:
+			vsum += packet.versionsum()
+		return vsum
 
 # Part 1: add up all the version numbers
 def processpacket(bstr):
@@ -56,7 +76,8 @@ def processpacket(bstr):
 		print("literal", literal)
 
 		# print("packetend", packetend)
-		return((version, groupstart))
+		thispacket = Literal(version,literal)
+		return((thispacket, groupstart))
 
 	else:
 		lengthtype = int(bstr[6])
@@ -64,6 +85,7 @@ def processpacket(bstr):
 		# are a number that represents the total length in bits of the sub-packets contained by this packet.
 		if lengthtype == 0:
 			# print("lengthtype 0")
+			subpackets = []
 			length = 15
 			totalsubpacketlen = int(bstr[7:22],2)
 			print("subpacket len str", bstr[7:22])
@@ -74,17 +96,19 @@ def processpacket(bstr):
 			while packetstart < totalsubpacketlen:
 				print("packetstart before", packetstart)
 				print("len(bstr)", len(bstr))
-				v, packetlen = processpacket(bstr[packetstart:])
+				subpacket, packetlen = processpacket(bstr[packetstart:])
 				print("packetstart after", packetstart)
 				packetstart += packetlen
-				version += v
+				subpackets.append(subpacket)
 			# print("version", version)
-			return ((version, packetstart))
+			thispacket= Operator(version,typeid,subpackets)
+			return ((thispacket, packetstart))
 				
 		# If the length type ID is 1, then the next 11 bits
 		# are a number that represents the number of sub-packets immediately contained by this packet.
 		else:
 			# print("lengthtype 1")
+			subpackets = []
 			length = 11
 			numpackets = int(bstr[7:18],2)
 			print("numpacket str", bstr[7:18])
@@ -93,13 +117,14 @@ def processpacket(bstr):
 			packetstart = 18
 			for i in range(0, numpackets):
 				print("packetstart before", packetstart)
-				v, packetlen = processpacket(bstr[packetstart:])
+				subpacket, packetlen = processpacket(bstr[packetstart:])
 				print("packetstart after", packetstart)
 				packetstart += packetlen
-				version += v
+				subpackets.append(subpacket)
 			# print("version", version)
-			return ((version, packetstart))
+			thispacket= Operator(version,typeid,subpackets)
+			return ((thispacket, packetstart))
 
-versionsum, finalpacketlen = processpacket(bstr)
+packet, finalpacketlen = processpacket(bstr)
 
-print("versionsum", versionsum)
+print("versionsum", packet.versionsum())
