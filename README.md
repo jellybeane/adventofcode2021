@@ -17,3 +17,4 @@ Day | Theme | Notes
 13  |Transparent Origami| 2D arrays, zip
 14  |Polymerization|bit shift, not brute forcing
 15  |Chiton|A*
+16  |Packet Decoder|recursion, parsing shenanigans, off by n errors
