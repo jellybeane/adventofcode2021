@@ -1,21 +1,18 @@
 from collections import Counter
 
-#puzzinput = open("demo.txt")
+# puzzinput = open("demo.txt")
 puzzinput = open("input.txt")
 
-dots = []
-atinstructions = False
-instructions = []
-for line in puzzinput:
-    if atinstructions:
-        axis, val = line.strip().split()[2].split('=')
-        instructions.append((axis, int(val)))
-    elif len(line.strip()) == 0:
-        atinstructions = True
-    else:
-        x,y = map(int, line.strip().split(','))
-        dots.append((x,y))
+dotlines, instructionlines = puzzinput.read().split('\n\n')
+dotlines = dotlines.split('\n')
+instructionlines = instructionlines.split('\n')
 
+dots = [tuple(map(int, line.strip().split(','))) for line in dotlines]
+instructions = []
+for line in instructionlines:
+    axis, val = line.strip().split()[2].split('=')
+    instructions.append((axis, int(val)))
+        
 maxx, maxy = map(max, zip(*dots))
 maxx += 1
 maxy += 1
