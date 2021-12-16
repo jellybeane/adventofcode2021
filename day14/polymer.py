@@ -3,27 +3,25 @@ from collections import Counter
 #puzzinput = open("demo.txt")
 puzzinput = open("input.txt")
 
-template = ""
-atrules = False
-rules = {}
+template, _, *rules = puzzinput.read().split('\n')
+print(rules)
+rules = dict(r.split(" -> ") for r in rules)
+
 numpairs = {}
 letters = {}
-for line in puzzinput:
-    if atrules:
-        pair, insert = line.strip().split(" -> ")
-        rules[pair] = insert
-        numpairs[pair] = 0
-        letters[pair[0]] = 0
-        letters[pair[1]] = 0
-    elif len(line.strip()) == 0:
-        atrules = True
-    else:
-        template = line.strip()
 
 # from the original template
 for i in range(len(template)-1):
         pair = template[i:i+2]
-        numpairs[pair] += 1
+        if pair not in numpairs:
+            numpairs[pair] = 1
+        else:
+            numpairs[pair] += 1
+for letter in template:
+    if letter not in letters:
+        letters[letter] = 1
+    else:
+        letters[letter] += 1
 
 #part 1
 #steps = 10
@@ -46,17 +44,22 @@ for step in range(steps):
         else:
             newpairs[newpair2] += num
 
+        if middle not in letters:
+            letters[middle] = num
+        else:
+            letters[middle] += num
+
     numpairs = newpairs
 
-# counting up the letters
-for pair, num in numpairs.items():
-    letters[pair[0]] += num
-    letters[pair[1]] += num
+# # counting up the letters
+# for pair, num in numpairs.items():
+#     letters[pair[0]] += num
+#     letters[pair[1]] += num
 
-# internal letters are doublecounted,
-# but the first and last are single-counted
-letters[template[0]] += 1
-letters[template[-1]] += 1
+# # internal letters are doublecounted,
+# # but the first and last are single-counted
+# letters[template[0]] += 1
+# letters[template[-1]] += 1
 
 print(letters)
 
@@ -74,10 +77,6 @@ for letter, num in letters.items():
     if num > mostcommonnum:
         mostcommonletter = letter
         mostcommonnum = num
-
-# divide by 2
-mostcommonnum >>= 1
-leastcommonnum >>= 1
 
 print("most common: %s %s" % (mostcommonletter, mostcommonnum))
 print("least common: %s %s" % (leastcommonletter, leastcommonnum))
