@@ -1,6 +1,7 @@
-example = 'target area: x=20..30, y=-10..-5'
+#targetstr = 'target area: x=20..30, y=-10..-5'
+targetstr = open("input.txt").readline().strip()
 
-_, _, targetx, targety = example.split(' ')
+_, _, targetx, targety = targetstr.split(' ')
 targetx = tuple(map(int, targetx[2:].strip(',').split('..')))
 targety = tuple(map(int, targety[2:].split('..')))
 
@@ -53,7 +54,7 @@ def hit_target(probe, targetx, targety, maxsteps):
 		if probe.x >= targetx[0] and probe.x <= targetx[1] and probe.y >= targety[0] and probe.y <= targety[1]:
 			print("Hit the target")
 			return (True, positions)
-		if probe.x > targetx[1] and probe.y < targety[0]:
+		if probe.x > targetx[1] or probe.y < targety[0]:
 			print("Missed the target")
 			return (False, positions)
 		probe.update()
@@ -68,12 +69,21 @@ startpos = (0,0)
 #startvel = (7,2)
 #startvel = (6,3)
 #startvel = (9,0)
-startvel = (17,-4)
+#startvel = (17,-4)
+#startvel = (6,9)
+
+## Part 1: Assuming the target is below the starting position,
+## vy will be negative initial-vy when it hits the starting y again
+# we want the next step's y-index to be the minimum target y
+# so the initial vy must be -1 - mintargy
+startvel = (int(targetx[0]/5), -1 - targety[0])
 
 probe = ProbeState(startpos[0],startpos[1],startvel[0],startvel[1])
 
-numsteps = 7
+numsteps = 1000
 hit, positions = hit_target(probe, targetx, targety, numsteps)
-display_trajectory(startpos,positions,targetx,targety)
+#display_trajectory(startpos,positions,targetx,targety)
+maxx, maxy = map(max, zip(*positions))
+print('Highest y position:',maxy)
 
 
