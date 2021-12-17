@@ -1,4 +1,5 @@
 import math
+import matplotlib.pyplot as plt
 
 #targetstr = 'target area: x=20..30, y=-10..-5'
 targetstr = open("input.txt").readline().strip()
@@ -102,6 +103,8 @@ print("vx bounds", (vxlower,vxupper))
 print("vy bounds", (vylower,vyupper))
 # try all the velocities and see if they work
 numgood = 0
+goodvx = []
+goodvy = []
 for vx in range(vxlower, vxupper+1):
 	for vy in range(vylower,vyupper+1):
 		probe = ProbeState(startpos[0],startpos[1],vx,vy)
@@ -109,6 +112,8 @@ for vx in range(vxlower, vxupper+1):
 			if probe.x >= targetx[0] and probe.x <= targetx[1] and probe.y >= targety[0] and probe.y <= targety[1]:
 				#print("Hit the target")
 				numgood+=1
+				goodvx.append(vx)
+				goodvy.append(vy)
 				break
 			if probe.x > targetx[1] or probe.y < targety[0]:
 				#print("Missed the target")
@@ -118,3 +123,9 @@ for vx in range(vxlower, vxupper+1):
 			print("Ran out of steps", (vx,vy,maxsteps))
 			assert False
 print("numgood", numgood)
+
+plt.plot(goodvx, goodvy, '.')
+plt.xlabel("vx")
+plt.ylabel("vy")
+plt.title("Velocities that hit the target")
+plt.show()
