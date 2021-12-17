@@ -1,3 +1,5 @@
+import math
+
 #targetstr = 'target area: x=20..30, y=-10..-5'
 targetstr = open("input.txt").readline().strip()
 
@@ -76,14 +78,43 @@ startpos = (0,0)
 ## vy will be negative initial-vy when it hits the starting y again
 # we want the next step's y-index to be the minimum target y
 # so the initial vy must be -1 - mintargy
-startvel = (int(targetx[0]/5), -1 - targety[0])
+# startvel = (int(targetx[0]/5), -1 - targety[0])
+# probe = ProbeState(startpos[0],startpos[1],startvel[0],startvel[1])
 
-probe = ProbeState(startpos[0],startpos[1],startvel[0],startvel[1])
+# numsteps = 13
+# hit, positions = hit_target(probe, targetx, targety, numsteps)
+# display_trajectory(startpos,positions,targetx,targety)
+# maxx, maxy = map(max, zip(*positions))
+# print('Highest y position:',maxy)
 
-numsteps = 1000
-hit, positions = hit_target(probe, targetx, targety, numsteps)
-#display_trajectory(startpos,positions,targetx,targety)
-maxx, maxy = map(max, zip(*positions))
-print('Highest y position:',maxy)
+## Part 2: how many starting velocities end in the target?
+# vx upper bound: overshoots the first step
+vxupper = targetx[1]+1
+# vx lower bound: goes to 0 before reaching the target
+# triangle numbers: if x=(k(k+1))/2, then k=sqrt(2x+1/4)-1/2
+vxlower = int(math.floor(math.sqrt((2*targetx[0] + 0.25)-0.5)))
+# vy upper bound: one more than part 1's
+vyupper = -targety[0]
+# vy lower bound: overshoots the first step
+vylower = targety[0]
 
-
+print("vx bounds", (vxlower,vxupper))
+print("vy bounds", (vylower,vyupper))
+# try all the velocities and see if they work
+numgood = 0
+for vx in range(vxlower, vxupper+1):
+	for vy in range(vylower,vyupper+1):
+		probe = ProbeState(startpos[0],startpos[1],vx,vy)
+		for step in range(0, 1000):
+			if probe.x >= targetx[0] and probe.x <= targetx[1] and probe.y >= targety[0] and probe.y <= targety[1]:
+				#print("Hit the target")
+				numgood+=1
+				break
+			if probe.x > targetx[1] or probe.y < targety[0]:
+				#print("Missed the target")
+				break
+			probe.update()
+		else:
+			print("Ran out of steps", (vx,vy,maxsteps))
+			assert False
+print("numgood", numgood)
