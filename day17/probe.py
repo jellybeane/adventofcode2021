@@ -105,6 +105,7 @@ print("vy bounds", (vylower,vyupper))
 numgood = 0
 goodvx = []
 goodvy = []
+stepsneeded = []
 for vx in range(vxlower, vxupper+1):
 	for vy in range(vylower,vyupper+1):
 		probe = ProbeState(startpos[0],startpos[1],vx,vy)
@@ -114,6 +115,7 @@ for vx in range(vxlower, vxupper+1):
 				numgood+=1
 				goodvx.append(vx)
 				goodvy.append(vy)
+				stepsneeded.append(step)
 				break
 			if probe.x > targetx[1] or probe.y < targety[0]:
 				#print("Missed the target")
@@ -124,8 +126,10 @@ for vx in range(vxlower, vxupper+1):
 			assert False
 print("numgood", numgood)
 
-plt.plot(goodvx, goodvy, '.')
+plt.scatter(goodvx, goodvy, c=stepsneeded, cmap=plt.get_cmap('gist_rainbow'))
 plt.xlabel("vx")
 plt.ylabel("vy")
 plt.title("Velocities that hit the target")
+cbar = plt.colorbar()
+cbar.set_label("# steps")
 plt.show()
