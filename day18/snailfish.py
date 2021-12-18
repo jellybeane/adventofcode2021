@@ -44,24 +44,25 @@ class SnailPair(SnailNum):
     def explode(self, depth):
         # check if the children need to explode
         if depth < 4:
+            # explode left to right
             leftexplode = self.left.explode(depth+1)
             if leftexplode[0]:
                 if not leftexplode[1] is None:
                     # the left child needs to be replaced
                     self.setleft(leftexplode[1])
-                    return True, None
+                return True, None
+            # only explore right if there were none on left
             rightexplode = self.right.explode(depth+1)
             if rightexplode[0]:
                 if not rightexplode[1] is None:
                     # the right child needs to be replaced
                     self.setright(rightexplode[1])
-                    return True, None
+                return True, None
             # came back, no explodes needed
             return False, None
 
         # otherwise, this is the one to explode
 
-        # TODO bug in the neighbor-finding, see smalldemo
         # find the left neighbor
         curr = self
         # go up until you can go left
@@ -158,20 +159,20 @@ class SnailRegular(SnailNum):
 # s.reduce() 
 # print(str(s))
 
-puzzinput = open("smalldemo.txt")
+#puzzinput = open("smalldemo.txt")
 #puzzinput = open("demo.txt")
-#puzzinput = open("input.txt")
+puzzinput = open("input.txt")
 
 snails = None
 for line in puzzinput:
     s = SnailPair(lst=eval(line.strip()))
-    print("New snail", s)
+    #print("New snail", s)
     if snails is None:
         snails = s
     else:
         snails += s
     
     snails.reduce()
-    print("Sum", snails)
+    #print("Sum", snails)
 
 print(snails.magnitude())
