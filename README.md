@@ -19,3 +19,4 @@ Day | Theme | Notes
 15  |Chiton|A*
 16  |Packet Decoder|recursion, parsing shenanigans, off by n errors
 17  |Trick Shot|bounding the problem, matplotlib
+18  |Snailfish|Binary trees
