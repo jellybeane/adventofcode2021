@@ -1,5 +1,5 @@
 import math
-from collections import deque
+from copy import deepcopy
 
 class SnailNum():
 
@@ -10,7 +10,7 @@ class SnailNum():
         return 1 + self.parent.depth()
 
     def __add__(self, other):
-        return SnailPair(lst=None, left=self, right=other)
+        return SnailPair(lst=None, left=deepcopy(self), right=deepcopy(other))
 
 class SnailPair(SnailNum):
     def __init__(self, lst=None, left=None, right=None):
@@ -130,6 +130,15 @@ class SnailPair(SnailNum):
 
     def __str__(self):
         return '['+ str(self.left) + ',' + str(self.right) + ']'
+    
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, deepcopy(v, memo))
+        return result
+
 
 class SnailRegular(SnailNum):
     def __init__(self, val):
@@ -153,26 +162,37 @@ class SnailRegular(SnailNum):
     def __str__(self):
         return str(self.val)
 
-# s1 = SnailPair([[[[4,3],4],4],[7,[[8,4],9]]])
-# s2 = SnailPair([1,1])
-# s = s1 + s2
-# s.reduce() 
-# print(str(s))
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            setattr(result, k, deepcopy(v, memo))
+        return result
+
 
 #puzzinput = open("smalldemo.txt")
-#puzzinput = open("demo.txt")
+# puzzinput = open("demo.txt")
 puzzinput = open("input.txt")
+lines = puzzinput.readlines()
 
-snails = None
-for line in puzzinput:
-    s = SnailPair(lst=eval(line.strip()))
-    #print("New snail", s)
-    if snails is None:
-        snails = s
-    else:
-        snails += s
-    
-    snails.reduce()
-    #print("Sum", snails)
+# Part 2: find the largest magnitude of the sum of any two snailnums
+snails = [SnailPair(lst=eval(line.strip())) for line in lines]
 
-print(snails.magnitude())
+magnitude = 0
+for i in range(len(snails)-2):
+    for j in range(i+1, len(snails)-1):
+        # snail addition is not commutative
+        s1 = snails[i] + snails[j]
+        s1.reduce()
+        m1 = s1.magnitude()
+        if m1 > magnitude:
+            magnitude = m1
+
+        s2 = snails[j] + snails[i]
+        s2.reduce()
+        m2 = s2.magnitude()
+        if m2 > magnitude:
+            magnitude = m2
+
+print(magnitude)
