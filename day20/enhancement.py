@@ -16,19 +16,17 @@ if alg[0] == '#':
 grid = []
 
 for line in gridlines:
-    row = '..' + line.strip() + '..'
+    row = '..' + line.strip() + '.'
 
     if len(grid) < 1:
-        grid.append('.'*len(row))
         grid.append('.'*len(row))
 
     grid.append(row)
 
 grid.append('.'*len(grid[0]))
-grid.append('.'*len(grid[0]))
 
-for row in grid:
-    print(row)
+# for row in grid:
+#     print(row)
 
 def enhance(grid, generation, alternate):
     # if alternating, odd generations will have infinite #s
@@ -76,15 +74,21 @@ def enhance(grid, generation, alternate):
     return enhanced, lit
 
 # part 1: the number of lit cells after two iterations
-enhanced, lit = enhance(grid, 1, alternate)
-for row in enhanced:
-    print(row)
+# enhanced, lit = enhance(grid, 1, alternate)
+# for row in enhanced:
+#     print(row)
 
-print("lit", lit)
+# print("lit", lit)
 
-enhanced, lit = enhance(enhanced, 2, alternate)
+# enhanced, lit = enhance(enhanced, 2, alternate)
 
-for row in enhanced:
-    print(row)
+# for row in enhanced:
+#     print(row)
 
-print("lit", lit)
+# print("lit", lit)
+
+# part 2: 50 iterations
+enhanced = grid
+for i in range(1, 51):
+    enhanced,lit = enhance(enhanced,i,alternate)
+    print(i, lit)
