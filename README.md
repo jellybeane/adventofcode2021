@@ -21,3 +21,4 @@ Day | Theme | Notes
 17  |Trick Shot|bounding the problem, matplotlib
 18  |Snailfish|Binary trees, classes, deepcopy
 19  |Beacon Scanner| point set registration?
+20  |Trench Map| ???
