@@ -1,13 +1,17 @@
 from collections import Counter
 
-puzzinput = open("demo.txt")
-# puzzinput = open("input.txt")
+#puzzinput = open("demo.txt")
+puzzinput = open("input.txt")
 
 # first line: image enhancement algorithm
 # blank line
 # grid
 alg, gridlines = puzzinput.read().split('\n\n')
 gridlines = gridlines.split('\n')
+
+alternate = False
+if alg[0] == '#':
+    alternate = True
 
 grid = []
 
@@ -26,11 +30,19 @@ grid.append('.'*len(grid[0]))
 for row in grid:
     print(row)
 
-def enhance(grid):
+def enhance(grid, generation, alternate):
+    # if alternating, odd generations will have infinite #s
+    if alternate and generation%2 == 1:
+        blanks = '#'
+        prev = '.'
+    else:
+        blanks = '.'
+        prev = '#'
+
     lit = 0
-    enhanced = ['.'*(len(grid[0])+2)]
+    enhanced = [blanks*(len(grid[0])+2)]
     for i, row in enumerate(grid):
-        e = '.'
+        e = blanks
         for j, pixel in enumerate(row):
             s = ''
             # the 3x3 grid
@@ -39,38 +51,38 @@ def enhance(grid):
             mincol = max(0, j-1)
             maxcol = min(j+1, len(row)-1)
             if i == 0:
-                s += '...'
+                s += prev*3
             for ni in range(minrow, maxrow+1):
                 if j == 0:
-                    s += '.'
+                    s += prev
                 for nj in range(mincol, maxcol+1):
                     s += grid[ni][nj]
                 if j == maxcol:
-                    s += '.'
+                    s += prev
             if i == maxrow:
-                s += '...'
+                s += prev*3
 
             indexstr = s.replace('.', '0').replace('#','1')
             index = int(indexstr, 2)
            # print(i, j, s, index)
             e += alg[index]
-        e += '.'
+        e += blanks
 
         lit += Counter(e)['#']
         enhanced.append(e)
 
-    enhanced.append('.'*(len(grid[0])+2))
+    enhanced.append(blanks*(len(grid[0])+2))
 
     return enhanced, lit
 
-enhanced, lit = enhance(grid)
-# why doesn't this match the example :(
+# part 1: the number of lit cells after two iterations
+enhanced, lit = enhance(grid, 1, alternate)
 for row in enhanced:
     print(row)
 
 print("lit", lit)
 
-enhanced, lit = enhance(enhanced)
+enhanced, lit = enhance(enhanced, 2, alternate)
 
 for row in enhanced:
     print(row)
