@@ -20,3 +20,4 @@ Day | Theme | Notes
 16  |Packet Decoder|recursion, parsing shenanigans, off by n errors
 17  |Trick Shot|bounding the problem, matplotlib
 18  |Snailfish|Binary trees, classes, deepcopy
+19  |Beacon Scanner| point set registration?
