@@ -45,13 +45,14 @@ def enhance(grid):
                     s += '.'
                 for nj in range(mincol, maxcol+1):
                     s += grid[ni][nj]
-                if j == len(row)-1:
+                if j == maxcol:
                     s += '.'
-            if i == len(grid)-1:
+            if i == maxrow:
                 s += '...'
 
-            index = int(s.replace('.', '0').replace('#','1'), 2)
-            #print(s, index)
+            indexstr = s.replace('.', '0').replace('#','1')
+            index = int(indexstr, 2)
+           # print(i, j, s, index)
             e += alg[index]
         e += '.'
 
